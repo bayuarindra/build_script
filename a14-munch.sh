@@ -1,21 +1,20 @@
-rm -rf out/target/product/munch/*
-rm -rf .repo/local_manifests/  && # Clone local_manifests repository
-repo init -u https://github.com/RisingTechOSS/android.git -b fourteen --git-lfs --depth=1
-#clone dev tree
-git clone https://github.com/bayuarindra/local_manifest --depth=1 -b rising-14 .repo/local_manifests &&
-# Sync the repositories
-/opt/crave/resync.sh  && 
-# Set up build environment
-export BUILD_USERNAME=BayuArindra
-export BUILD_HOSTNAME=crave
-#export TARGET_PRODUCT=lineage_munch
-#export TARGET_RELEASE=ap2a
-export TZ=Asia/Jakarta
-export RISING_MAINTAINER=BayuArindra
-source build/envsetup.sh
- 
-# Build the ROM
- riseup munch user
+#!/bin/bash
 
-#beelding
-rise b
+# Clone repositories 
+git clone https://github.com/bayuarindra/device_xiaomi_munch device/xiaomi/munch 
+git clone https://github.com/bayuarindra/device_xiaomi_sm8250-common device/xiaomi/sm8250-common
+cd frameworks/native
+git fetch https://github.com/Project-PixelStar/frameworks_native
+git cherry-pick 21bd93f82538a10df34e0747e6326a74a3b1336b
+cd ../../
+
+# Clone common repositories
+rm -rf hardware/xiaomi
+git clone https://LineageOS/android_hardware_xiaomi hardware/xiaomi
+git clone https://gitea.com/bayuarindra/vendor_xiaomi vendor/xiaomi
+
+# Clone and setup kernel
+git clone https://github.com/bayuarindra/kernel_xiaomi_sm8250 kernel/xiaomi/sm8250
+
+# Modify the AndroidManifest.xml
+sed -i 's/android:minSdkVersion="19"/android:minSdkVersion="21"/' prebuilts/sdk/current/androidx/m2repository/androidx/preference/preference/1.3.0-alpha01/manifest/AndroidManifest.xml
